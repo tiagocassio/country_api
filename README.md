@@ -173,6 +173,7 @@ POSTGRES_PORT=5433
 # Rails
 RAILS_ENV=development
 RAILS_PORT=3000
+CLIENT_PORT=3001
 SECRET_KEY_BASE=your_secret_key
 
 # API Keys (via credentials)

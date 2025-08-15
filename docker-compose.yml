@@ -36,9 +36,10 @@ services:
       context: ../country-client
       dockerfile: ${CLIENT_DOCKERFILE:-Dockerfile.dev}
     ports:
-      - "3001:3000"
+      - "${CLIENT_PORT:-3001}:3000"
     environment:
       - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
     volumes:
       - ../country-client:/app
       - /app/node_modules
