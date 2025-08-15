@@ -23,7 +23,8 @@ The application fetches country data from external APIs and provides it through 
 
 ### 1. Clone and Setup
 ```bash
-git clone <repository-url>
+git clone git@github.com:tiagocassio/country_api.git
+git clone git@github.com:tiagocassio/country-client.git
 cd country_api
 ```
 
@@ -38,12 +39,6 @@ cp .env.example .env
 ```bash
 # Add your Country API credentials
 docker compose exec api rails credentials:edit
-```
-
-Add your Country API credentials:
-```yaml
-country_api:
-  api_key: "your_api_key_here"
 ```
 
 ### 4. One-Command Startup
@@ -176,11 +171,6 @@ RAILS_PORT=3000
 CLIENT_PORT=3001
 SECRET_KEY_BASE=your_secret_key
 
-# API Keys (via credentials)
-country_api:
-  api_key: your_api_key
-```
-
 ## 📊 Monitoring and Maintenance
 
 ### Logs
@@ -214,74 +204,6 @@ docker compose exec api rails solid_queue:status
 docker compose exec api tail -f log/solid_queue.log
 ```
 
-## 🚀 Deployment
-
-### Production Setup
-```bash
-# Set production environment
-export RAILS_ENV=production
-export DOCKERFILE=Dockerfile
-
-# Start production services
-./start-projects.sh
-```
-
-### Kamal Integration
-```bash
-# Deploy with Kamal
-docker compose exec web kamal deploy
-```
-
-## 🤝 Contributing
-
-### Development Workflow
-1. **Fork** the repository
-2. **Create** a feature branch
-3. **Make** your changes
-4. **Add tests** for new functionality
-5. **Ensure** all tests pass (100% coverage)
-6. **Submit** a pull request
-
-### Code Quality
-- **RuboCop** for code style
-- **RSpec** for testing
-- **SimpleCov** for coverage
-- **Brakeman** for security
-
-## 📈 Performance Features
-
-### Caching
-- **Solid Cache** for database-backed caching
-- **API response caching** (5-minute TTL)
-- **Country data caching** for fast responses
-
-### Background Processing
-- **Solid Queue** for job processing
-- **Asynchronous updates** for country data
-- **Error handling** and retry mechanisms
-
-## 🔒 Security Features
-
-### Authentication
-- **Secure password handling** with bcrypt
-- **Session management** with secure tokens
-- **Email verification** system
-- **Password reset** functionality
-
-### API Security
-- **CORS configuration** for cross-origin requests
-- **Parameter filtering** for sensitive data
-- **Rate limiting** capabilities
-- **Input validation** and sanitization
-
-## 📚 API Documentation
-
-### Swagger/OpenAPI
-- **Interactive API docs** at `/api-docs`
-- **Auto-generated** from RSpec tests
-- **Request/response examples**
-- **Authentication documentation**
-
 ### Generate Documentation
 ```bash
 # Generate Swagger docs
@@ -312,19 +234,5 @@ docker compose exec api rails db:version
 # Check job queue
 docker compose exec api rails solid_queue:status
 ```
-
-## 📄 License
-
-[Add your license information here]
-
-## 🆘 Support
-
-For support and questions:
-- **Create an issue** in the repository
-- **Check the logs** for error details
-- **Review the API docs** for endpoint information
-- **Run the test suite** to verify functionality
-
----
 
 **Built with ❤️ using Rails 8, Docker, and modern development practices**
