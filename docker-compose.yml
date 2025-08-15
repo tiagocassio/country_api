@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:17
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+
+  api:
+    build:
+      context: .
+      dockerfile: ${DOCKERFILE:-Dockerfile.dev}
+    env_file:
+      - .env
+    ports:
+      - "${RAILS_PORT}:${RAILS_INTERNAL_PORT:-3000}"
+    environment:
+      RAILS_ENV: ${RAILS_ENV}
+      RAILS_PORT: ${RAILS_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+    depends_on:
+      - db
+    volumes:
+      - .:/rails
+
+  client:
+    build:
+      context: ../country-client
+      dockerfile: ${CLIENT_DOCKERFILE:-Dockerfile.dev}
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ../country-client:/app
+      - /app/node_modules
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  bundle_cache:
