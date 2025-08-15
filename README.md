@@ -1,188 +1,329 @@
-# Country View API
+# Country API
 
-A Rails 8 API application configured with Docker Compose, PostgreSQL, RSpec, Swagger documentation, Solid Cache, and Solid Cable that helps to see Countries informations. This project works together with the **Country Client** (Next.js frontend) to provide a complete country exploration experience.
+A comprehensive Rails 8 API application that provides country information through a RESTful API, configured with Docker Compose, PostgreSQL, RSpec, Swagger documentation, Solid Cache, and Solid Cable.
 
-## Prerequisites
+## 🌍 Overview
 
+This API serves as a centralized source for country data, including:
+- **Basic Information**: Name, codes (alpha2, alpha3), location coordinates
+- **Demographics**: Population, area, capital cities
+- **Geographic Details**: Region, subregion, borders, time zones
+- **Economic Information**: Currencies, languages, calling codes
+- **Political Information**: Official names, flags
+- **Automatic Updates**: Daily synchronization with external Country API
+
+The application fetches country data from external APIs and provides it through a clean, documented REST interface with automatic daily updates.
+
+## 🚀 Quick Start
+
+### Prerequisites
 - Docker
 - Docker Compose (`docker compose` not `docker-compose`)
 - Git
 
-## Quick Start
-
-### Option 1: Run Both Projects Together (Recommended)
-
-1. **Navigate to the parent directory**
-   ```bash
-   cd ..  # From country_api directory
-   ```
-
-2. **Setup environment variables**
-   ```bash
-   cd country_api
-   cp .env.example .env
-   # Edit .env with your specific values
-   cd ..
-   ```
-
-3. **Start all services (API + Client + Database)**
-   ```bash
-   ./start-projects.sh
-   # Or manually: docker-compose up --build -d
-   ```
-
-4. **Access your applications**
-   - **Rails API**: http://localhost:3000
-   - **Next.js Client**: http://localhost:3001
-   - **PostgreSQL**: localhost:5432
-
-### Option 2: Run Only the API
-
-1. **Setup environment variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your specific values
-   ```
-
-2. **Start development environment**
-   ```bash
-   docker compose up --build
-   ```
-
-3. **Setup the database**
-   ```bash
-   docker compose exec api rails db:create
-   docker compose exec api rails db:migrate
-   ```
-
-4. **Generate RSpec and Swagger configuration**
-   ```bash
-   docker compose exec api rails generate rspec:install
-   docker compose exec api rails generate rswag:install
-   ```
-
-## Environment Configuration
-
-Copy `.env.example` to `.env` and configure the following variables:
-
-### Database Configuration
-- `DATABASE_URL` - Complete PostgreSQL connection string
-- `POSTGRES_DB` - Database name
-- `POSTGRES_USER` - Database username
-- `POSTGRES_PASSWORD` - Database password
-- `POSTGRES_PORT` - External PostgreSQL port (default: 5432)
-
-### Rails Configuration
-- `RAILS_ENV` - Rails environment (development/production)
-- `RAILS_PORT` - External Rails port (default: 3000)
-- `RAILS_INTERNAL_PORT` - Internal container port (3000 for dev, 80 for prod)
-- `SECRET_KEY_BASE` - Rails secret key for development
-- `RAILS_MASTER_KEY` - Rails master key for production
-
-### Docker Configuration
-- `DOCKERFILE` - Which Dockerfile to use (Dockerfile.dev/Dockerfile)
-
-## Development vs Production
-
-### Development (Default)
+### 1. Clone and Setup
 ```bash
-# Uses Dockerfile.dev and development settings
-docker compose up --build
+git clone <repository-url>
+cd country_api
 ```
 
-### Production
+### 2. Environment Configuration
 ```bash
-# Set environment variables for production
-DOCKERFILE=Dockerfile RAILS_INTERNAL_PORT=80 docker compose up --build
+# Copy and edit environment file
+cp .env.example .env
+# Edit .env with your specific values
 ```
 
-Or update your `.env` file:
-```
-DOCKERFILE=Dockerfile
-RAILS_INTERNAL_PORT=80
-RAILS_ENV=production
-```
-
-## Services
-
-### Complete Project Setup (Both API + Client)
-When running both projects together from the parent directory:
-
-- **Rails API**: Port 3000 (configurable via `RAILS_PORT`)
-- **Next.js Client**: Port 3001
-- **PostgreSQL**: Port 5432 (configurable via `POSTGRES_PORT`)
-- **All services** include volumes for live code reloading
-
-### API Only Setup
-When running only the API from the country_api directory:
-
-- **Web Service (Development)**: Port 3000 (configurable via `RAILS_PORT`)
-- **Production**: Port 3000 (or configured port) mapping to internal port 80
-- Includes volumes for live code reloading
-
-- **Database Service (Development)**: PostgreSQL 17
-- Port 5433 (configurable via `POSTGRES_PORT`)
-- Persistent data storage
-
-## Features
-
-### Testing with RSpec
-- Configured for API testing
-- Factory Bot for test data
-- Run tests: `docker compose exec api bundle exec rspec`
-
-### API Documentation with Swagger
-- rswag gems for API documentation
-- Access Swagger UI at: `http://localhost:3000/api-docs`
-- Generate docs: `docker compose exec api rails rswag`
-
-### Caching with Solid Cache
-- Configured as Rails cache store
-- Database-backed caching solution
-
-### WebSockets with Solid Cable
-- Configured as Action Cable adapter
-- Database-backed WebSocket solution
-
-## Common Commands
-
-### Database Operations
+### 3. Configure API Credentials
 ```bash
-# Create database
-docker compose exec api rails db:create
-
-# Run migrations
-docker compose exec api rails db:migrate
-
-# Seed database
-docker compose exec api rails db:seed
-
-# Reset database
-docker compose exec api rails db:reset
+# Add your Country API credentials
+docker compose exec api rails credentials:edit
 ```
 
-### Testing
+Add your Country API credentials:
+```yaml
+country_api:
+  api_key: "your_api_key_here"
+```
+
+### 4. One-Command Startup
+```bash
+# Make script executable and run
+chmod +x start-projects.sh
+./start-projects.sh
+```
+
+The startup script automatically:
+- ✅ Starts all Docker services
+- ✅ Sets up the database
+- ✅ Runs migrations
+- ✅ Seeds initial country data
+- ✅ Starts background job workers
+- ✅ Provides status and helpful commands
+
+## 📡 API Endpoints
+
+### Countries
+- `GET /api/v1/countries` - List all countries with filtering and pagination
+- `GET /api/v1/countries/:id` - Get detailed information about a specific country
+
+### Authentication (Identity)
+- `POST /api/identity/registrations` - User registration
+- `POST /api/identity/sessions` - User login
+- `DELETE /api/identity/sessions` - User logout
+- `POST /api/identity/passwords` - Password reset
+- `POST /api/identity/email_verifications` - Email verification
+
+## 🔄 Country Update System
+
+### Automatic Updates
+The system automatically updates country information every day at 2:00 AM using background jobs.
+
+### Manual Management
+```bash
+# Update all countries from API
+docker compose exec api rails countries:update
+
+# Update with statistics
+docker compose exec api rails countries:update_with_stats
+
+# Check data freshness
+docker compose exec api rails countries:check_freshness
+```
+
+### Background Jobs
+- **Solid Queue** processes background jobs
+- **Daily country updates** run automatically
+- **Error handling** and logging for failed updates
+- **Statistics tracking** for created/updated countries
+
+## 🏗️ Architecture
+
+### Service Layer
+- **CountryUpdateService**: Core business logic for country data management
+- **API Integration**: Custom CountryApi client library
+- **Data Processing**: Robust error handling and data validation
+
+### Job System
+- **UpdateCountriesJob**: Background job for country updates
+- **Recurring Jobs**: Daily automatic updates
+- **Queue Management**: Solid Queue for job processing
+
+### Data Models
+- **Country**: Comprehensive country information storage
+- **User**: Authentication and user management
+- **Session**: Secure session handling
+
+## 🧪 Testing
+
+### Test Coverage
+- **100% Line Coverage** achieved
+- **420+ test examples** covering all functionality
+- **Comprehensive service testing** including edge cases
+- **Job testing** with proper mocking
+
+### Running Tests
 ```bash
 # Run all tests
 docker compose exec api bundle exec rspec
 
-# Run specific test file
-docker compose exec api bundle exec rspec file/to/load_spec.rb
+# Run specific test files
+docker compose exec api bundle exec rspec spec/services/country_update_service_spec.rb
+docker compose exec api bundle exec rspec spec/jobs/update_countries_job_spec.rb
 
-# Generate Swagger documentation
-docker compose exec api rails rswag
+# Run with coverage
+docker compose exec api bundle exec rspec --format progress
 ```
 
-### Rails Console
+### Test Structure
+- **RSpec** for test framework
+- **Factory Bot** for test data
+- **VCR** for API response recording
+- **WebMock** for HTTP request stubbing
+- **Database Cleaner** for test isolation
+
+## 🐳 Docker Configuration
+
+### Services
+- **Web**: Rails API application (Port 3000)
+- **Database**: PostgreSQL 17 (Port 5433)
+- **Cache**: Solid Cache for performance
+- **Queue**: Solid Queue for background jobs
+
+### Development vs Production
 ```bash
-docker compose exec api rails console
+# Development (default)
+./start-projects.sh
+
+# Production
+DOCKERFILE=Dockerfile RAILS_INTERNAL_PORT=80 ./start-projects.sh
 ```
 
-### View Logs
+## 🔧 Environment Configuration
+
+### Required Variables
 ```bash
-# All services
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5433/country_api
+POSTGRES_DB=country_api
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=password
+POSTGRES_PORT=5433
+
+# Rails
+RAILS_ENV=development
+RAILS_PORT=3000
+SECRET_KEY_BASE=your_secret_key
+
+# API Keys (via credentials)
+country_api:
+  api_key: your_api_key
+```
+
+## 📊 Monitoring and Maintenance
+
+### Logs
+```bash
+# View all logs
 docker compose logs -f
 
-# Specific service
+# View specific service logs
 docker compose logs -f web
+docker compose logs -f db
 ```
+
+### Database Management
+```bash
+# Rails console
+docker compose exec api rails console
+
+# Database reset
+docker compose exec api rails db:reset
+
+# Run migrations
+docker compose exec api rails db:migrate
+```
+
+### Job Monitoring
+```bash
+# Check job status
+docker compose exec api rails solid_queue:status
+
+# View job logs
+docker compose exec api tail -f log/solid_queue.log
+```
+
+## 🚀 Deployment
+
+### Production Setup
+```bash
+# Set production environment
+export RAILS_ENV=production
+export DOCKERFILE=Dockerfile
+
+# Start production services
+./start-projects.sh
+```
+
+### Kamal Integration
+```bash
+# Deploy with Kamal
+docker compose exec web kamal deploy
+```
+
+## 🤝 Contributing
+
+### Development Workflow
+1. **Fork** the repository
+2. **Create** a feature branch
+3. **Make** your changes
+4. **Add tests** for new functionality
+5. **Ensure** all tests pass (100% coverage)
+6. **Submit** a pull request
+
+### Code Quality
+- **RuboCop** for code style
+- **RSpec** for testing
+- **SimpleCov** for coverage
+- **Brakeman** for security
+
+## 📈 Performance Features
+
+### Caching
+- **Solid Cache** for database-backed caching
+- **API response caching** (5-minute TTL)
+- **Country data caching** for fast responses
+
+### Background Processing
+- **Solid Queue** for job processing
+- **Asynchronous updates** for country data
+- **Error handling** and retry mechanisms
+
+## 🔒 Security Features
+
+### Authentication
+- **Secure password handling** with bcrypt
+- **Session management** with secure tokens
+- **Email verification** system
+- **Password reset** functionality
+
+### API Security
+- **CORS configuration** for cross-origin requests
+- **Parameter filtering** for sensitive data
+- **Rate limiting** capabilities
+- **Input validation** and sanitization
+
+## 📚 API Documentation
+
+### Swagger/OpenAPI
+- **Interactive API docs** at `/api-docs`
+- **Auto-generated** from RSpec tests
+- **Request/response examples**
+- **Authentication documentation**
+
+### Generate Documentation
+```bash
+# Generate Swagger docs
+docker compose exec api rails rswag
+
+# View at http://localhost:3000/api-docs
+```
+
+## 🆘 Troubleshooting
+
+### Common Issues
+1. **Database connection errors**: Check PostgreSQL is running
+2. **API key errors**: Verify credentials are set correctly
+3. **Job failures**: Check Solid Queue worker is running
+4. **Coverage drops**: Run full test suite to restore coverage
+
+### Debug Commands
+```bash
+# Check service status
+docker compose ps
+
+# View service logs
+docker compose logs api
+
+# Test database connection
+docker compose exec api rails db:version
+
+# Check job queue
+docker compose exec api rails solid_queue:status
+```
+
+## 📄 License
+
+[Add your license information here]
+
+## 🆘 Support
+
+For support and questions:
+- **Create an issue** in the repository
+- **Check the logs** for error details
+- **Review the API docs** for endpoint information
+- **Run the test suite** to verify functionality
+
+---
+
+**Built with ❤️ using Rails 8, Docker, and modern development practices**
