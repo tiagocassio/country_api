@@ -4,7 +4,7 @@ module V1
 
     def index
       country_filter_service = ::Filters::CountryFilter.new.filter(search_params)
-      @pagy, @countries = pagy(country_filter_service.results, items: 999)
+      @pagy, @countries = pagy(country_filter_service.results, items: 20)
     end
 
     def show; end
