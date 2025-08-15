@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  mount Rswag::Ui::Engine => "/api-docs"
+  mount Rswag::Api::Engine => "/api-docs"
+  get "/api-docs", to: redirect("/api-docs/index.html")
+
   root to: redirect("/up")
   get "up" => "rails/health#show", as: :rails_health_check
   post "sign_in", to: "sessions#create"

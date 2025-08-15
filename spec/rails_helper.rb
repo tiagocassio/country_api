@@ -8,6 +8,7 @@ require_relative '../config/environment'
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 require 'rspec/rails'
+require 'rswag/specs'
 Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
 
 # Ensures that the test database schema matches the current schema file.
@@ -54,4 +55,17 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+
+  # RSwag configuration
+  config.openapi_root = Rails.root.join('swagger').to_s
+  config.swagger_docs = {
+    'v1/swagger.json' => {
+      openapi: '3.0.1',
+      info: {
+        title: 'Country API V1',
+        version: 'v1',
+        description: 'API for managing and retrieving country information'
+      }
+    }
+  }
 end
