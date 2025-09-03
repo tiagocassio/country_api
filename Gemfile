@@ -3,7 +3,7 @@ source "https://rubygems.org"
 gem "dotenv-rails"
 #
 gem "rails", "~> 8.0.2", ">= 8.0.2.1"
-gem "pg", "~> 1.1"
+gem "pg", "~> 1.6"
 gem "puma", ">= 5.0"
 gem "jbuilder"
 gem "tzinfo-data", platforms: %i[ windows jruby ]
